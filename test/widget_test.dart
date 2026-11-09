@@ -1,30 +1,31 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:practica_07_arquitectura/main.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
+import 'package:practica_07_arquitectura/providers/contador_provider.dart';
+import 'package:practica_07_arquitectura/screens/home_page.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('La app de arquitectura carga correctamente', (
+    WidgetTester tester,
+  ) async {
+    // 1. Inicializar intl para el test
+    await initializeDateFormatting('es', null);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // 2. Cargar la app con el Provider
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => ContadorProvider(),
+        child: const MaterialApp(home: HomePage()),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // 3. Esperar a que el Future simulado cargue las tareas
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // 4. Verificar que los elementos principales están en pantalla
+    expect(find.text('Práctica 07 - Arquitectura'), findsOneWidget);
+    expect(find.text('Incrementar'), findsOneWidget);
+    expect(find.text('Estudiar Flutter'), findsOneWidget);
   });
 }
